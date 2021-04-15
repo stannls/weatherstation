@@ -1,17 +1,17 @@
-/* 
- * This file is part of the weatherstation distribution (https://github.com/ydshz/weatherstation).
- * Copyright (c) 2021 Yannis Storrer.
- * 
- * This program is free software: you can redistribute it and/or modify  
- * it under the terms of the GNU General Public License as published by  
+/*
+ * This file is part of the weatherstation distribution
+ * (https://github.com/ydshz/weatherstation). Copyright (c) 2021 Yannis Storrer.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 3.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -24,6 +24,7 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 #include <Wire.h>
+
 #include <string>
 #include <vector>
 
@@ -50,7 +51,7 @@ bool isAllowedToMail = true;
 /*
    Sets the alert bar one unit up if it isn't at the
    maximum.
-*/
+ */
 void ICACHE_RAM_ATTR barUp() {
   if (alertBar < 50) {
     alertBar++;
@@ -60,7 +61,7 @@ void ICACHE_RAM_ATTR barUp() {
 /*
    Sets the alert bar one unit down if it isn't at the
    minimum.
-*/
+ */
 void ICACHE_RAM_ATTR barDown() {
   if (alertBar > 0) {
     alertBar--;
@@ -69,12 +70,11 @@ void ICACHE_RAM_ATTR barDown() {
 
 /*
    Setup function, which runs when the programm starts.
-*/
+ */
 void setup() {
   Serial.begin(115200);
   Wire.begin(D2, D1);
-  while (!bme.begin())
-  {
+  while (!bme.begin()) {
     Serial.println("BME280 nicht gefunden!\n");
     delay(1000);
   }
@@ -107,13 +107,13 @@ void setup() {
 }
 
 /*
-  Reads the data from the BME.
-*/
-void DatenAusgeben() // Unterprogramm zum Auslesen und Anzeigen der Daten
+   Reads the data from the BME.
+ */
+void DatenAusgeben()  // Unterprogramm zum Auslesen und Anzeigen der Daten
 {
   bme.read(
       pressure, temp,
-      wet); // Werte für Druck, Temperatur und Luftfeuchte werden ausgelesen
+      wet);  // Werte für Druck, Temperatur und Luftfeuchte werden ausgelesen
   if (timer == 120) {
     if (pressure_history.size() >= 225) {
       pressure_history.erase(pressure_history.begin());
@@ -131,7 +131,7 @@ void DatenAusgeben() // Unterprogramm zum Auslesen und Anzeigen der Daten
 
 /*
    Fills the screen black and resets the cursor.
-*/
+ */
 void clearDisplay() {
   tft.fillScreen(ILI9341_BLACK);
   tft.setCursor(0, 0, 2);
@@ -139,9 +139,8 @@ void clearDisplay() {
 
 /*
    Prints the current values on the display and draws the graphs.
-*/
+ */
 void visualizeData() {
-
   tft.drawRect(0, 0, 240, 320, TFT_WHITE);
   tft.setCursor(5, 5, 2);
 
@@ -182,7 +181,7 @@ void visualizeData() {
 /*
    The alterManager functions checks if a value is too high and sends an email
    if not already send.
-*/
+ */
 void alertManager() {
   if (isAllowedToMail && temp >= alertBar) {
     sendMail("yannis.storrer@web.de", "The station is too hot", temp);
@@ -195,7 +194,7 @@ void alertManager() {
 
 /*
    The loop function which runs in a loop.
-*/
+ */
 void loop() {
   DatenAusgeben();
   visualizeData();
@@ -209,7 +208,7 @@ void loop() {
    @param email: The mail adress of the targeted user.
    @param reason: The reason to send the mail.
    @param value: THe value which is too high.
-*/
+ */
 void sendMail(String email, String reason, float value) {
   http.begin("https://thawing-journey-71753.herokuapp.com/alert", true);
   http.addHeader("Content-Type", "application/json");
