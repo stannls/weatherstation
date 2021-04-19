@@ -23,16 +23,23 @@
 #include <ESP8266mDNS.h>
 #include <SPI.h>
 #include <TFT_eSPI.h>
+#include <ThingSpeak.h>
 #include <Wire.h>
 
 #include <string>
 #include <vector>
+
+#define channelID 1234
+#define writeAPIKey ""
 
 using namespace std;
 
 const char *ssid = "";
 const char *password = "";
 
+/*unsigned long channelID = 480917;
+const char *writeAPIKey = "VNWTM48XUPNN4WKM";
+*/
 HTTPClient http;
 
 int alertBar = 50;
@@ -196,6 +203,9 @@ void alertManager() {
    The loop function which runs in a loop.
  */
 void loop() {
+  if (timer == 120) {
+    thingSpeakSend();
+  }
   DatenAusgeben();
   visualizeData();
   alertManager();
@@ -222,4 +232,18 @@ void sendMail(String email, String reason, float value) {
   auto httpCode = http.POST(postData);
   String payload = http.getString();
   http.end();
+}
+
+/*
+  Sends all of the data to ThingSpeak.
+*/
+void thingSpeakSend() {
+  long rssi = WiFi.RSSI();
+  WiFiClient client;
+  ThingSpeak.begin(client);
+  ThingSpeak.setField(1, rssi);
+  ThingSpeak.setField(2, temp);
+  ThingSpeak.setField(3, pressure);
+  ThingSpeak.setField(4, wet);
+  ThingSpeak.writeFields(channelID, writeAPIKey);
 }
